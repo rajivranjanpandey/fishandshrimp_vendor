@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router'
+"use client";
 import React from 'react'
 
 type EditButtonProps = {
@@ -6,12 +6,9 @@ type EditButtonProps = {
   label?: string;
 }
 function EditButton(props: EditButtonProps) {
-  const router = useRouter();
-  const onBtnClick = () => {
-    router.push(props.href)
-  }
+
   return (
-    <button className="hover:text-primary" onClick={onBtnClick}>
+    <button className="hover:text-primary" >
       <svg
         className="fill-current"
         width="18"

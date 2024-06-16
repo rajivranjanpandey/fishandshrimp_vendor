@@ -1,79 +1,101 @@
-import React from 'react';
-import { getVendorOrders } from '@/app/lib/order/action';
-import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
+"use client";
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { getVendorDeliveryBoys, getVendorOrders } from '@/app/lib/order/action';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
-import EditButton from '@/components/buttons/edit';
 
-const Orders = async () => {
-    const orders = await getVendorOrders();
-    const hierarchy = [
-        { href: '/', name: 'Dashboard' },
-        { href: '/vendor/orders', name: 'Orders' }
-    ]
+import { DeliveryBoy } from '@/types/order';
+import OrderItem from './orderItem';
+import OrderFilter from './orderFilter';
+import { getOneDayBefore, getTodaysDate } from '@/app/lib/dateFns';
+import { useRouter } from 'next/navigation';
 
+
+type OrderResponse = {
+    totalItems: number,
+    data: any[],
+    totalPages: number,
+    currentPage: string;
+    authentication_message?: string;
+}
+const Orders = () => {
+    const router = useRouter();
+    const query = {
+        page: 0,
+        size: 100,
+        start_date: getOneDayBefore(),
+        end_date: getTodaysDate()
+    }
+    const [loading, setLoading] = useState(true);
+    const [orders, setOrderList] = useState<OrderResponse>({ totalItems: 0, data: [], totalPages: 0, currentPage: '1' });
+    const [deliveryBoys, setDeliveryBoys] = useState([]);
+
+    const getOrders = async (query: any) => {
+        const payload = {
+            type: 'GET_VENDOR_ORDERS',
+            data: query
+        }
+        const orderResponse = await fetch('/api/order', { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } });
+        const orderInstance = await orderResponse.json();
+        if (orderInstance.authentication_message) {
+            router.replace('/auth/login');
+        } else {
+            setOrderList(orderInstance);
+            setLoading(false);
+        }
+    }
+    const getDeliveryBoys = async () => {
+        const payload = {
+            type: 'GET_VENDOR_DELIVERY_BOYS'
+        }
+        const deliveryResponse = await fetch('/api/order', { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } });
+        const deliveyrBoyss = await deliveryResponse.json();
+        if (deliveyrBoyss.authentication_message) {
+            router.replace('/auth/login');
+        } else {
+            setDeliveryBoys(deliveyrBoyss);
+        }
+    }
+    useEffect(() => {
+        getDeliveryBoys();
+    }, [])
+
+    console.log({ orders, deliveryBoys });
     return (
         <DefaultLayout>
-            <Breadcrumb pageName='Coupons' hierarchy={hierarchy} />
-            <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-                <button className='mb-5 cursor-pointer rounded-lg border border-secondary bg-secondary p-2 text-white transition hover:bg-opacity-90' onClick={onCouponAdd}>Add Coupon</button>
-                <div className="max-w-full overflow-x-auto">
-                    <table className="w-full table-auto">
-                        <thead>
-                            <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                                <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
-                                    Code
-                                </th>
-                                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                                    Amount
-                                </th>
-                                {/*  <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
-                                    Status
-                                </th> */}
-                                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map((orderItem, key) => (
-                                <tr key={key}>
-                                    <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
-                                        <h5 className="font-medium text-black dark:text-white">
-                                            {orderItem.order_number}
-                                        </h5>
-                                        {/* <p className="text-sm">${couponItem.description}</p> */}
-                                    </td>
-                                    <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                                        <p className="text-black dark:text-white">
-                                            {orderItem.final_total}
-                                        </p>
-                                    </td>
-                                    {/* <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                                        <p className="text-black dark:text-white">
-                                            {bannerItem.invoiceDate}
-                                        </p>
-                                    </td>
-                                    <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                                        <p
-                                            className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${bannerItem.status === "Paid"
-                                                    ? "bg-success text-success"
-                                                    : bannerItem.status === "Unpaid"
-                                                        ? "bg-danger text-danger"
-                                                        : "bg-warning text-warning"
-                                                }`}
-                                        >
-                                            {bannerItem.status}
-                                        </p>
-                                    </td> */}
-                                    <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                                        <div className="flex items-center space-x-3.5">
-                                            <EditButton href={`/vendor/orders/${orderItem.id}`} />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+
+            <div className="container mx-auto mt-10 p-4">
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    <div className="px-6 py-4">
+                        <div className='flex justify-between items-center'>
+                            <h2 className="text-2xl font-semibold text-gray-800">Orders</h2>
+                            <OrderFilter getOrders={getOrders} />
+                        </div>
+                        {
+                            loading ?
+                                <p>Fetching Records ...</p>
+                                :
+
+                                <>
+                                    {
+                                        orders.data.length > 0 ?
+
+                                            <div className="mt-4">
+                                                {
+                                                    orders.data.map((order) => {
+                                                        return (
+                                                            <OrderItem key={order.id} order={order} deliveryBoys={deliveryBoys} />
+                                                        )
+                                                    })
+                                                }
+
+                                            </div>
+                                            :
+                                            <p>No Orders Found</p>
+                                    }
+                                </>
+                        }
+
+                    </div>
                 </div>
             </div>
         </DefaultLayout>

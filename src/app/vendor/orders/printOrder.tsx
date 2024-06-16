@@ -1,237 +1,114 @@
-import React from 'react'
+"use client";
 
-function PrintOrder() {
-    async printSize(orderId) {
-        const response = await getSellerOrderDetailsApi({ orderId: orderId });
-        if (response) {
-            let orderDetails = response;
-            let kotOrderItems = [];
+import { formatDate } from "@/app/lib/dateFns";
 
-            let totalPrintQty = 0;
-            let totalPrintItem = 0;
-
-            if (orderDetails) {
-                orderDetails.order_items.forEach((item, index) => {
-
-                    totalPrintQty += parseInt(1);
-                    totalPrintItem += parseInt(item.qty_ordered);
-
-                    const evenItem = (index + 1) % 2 === 0;
-                    let addonItems = [];
-                    let kotAddonItems = [];
-                    item.addons.forEach((x) => {
-                        addonItems.push(
-                            <div className="order_addon_list">
-                                <span>{x.name}</span>
-                                <span>₹{x.final_total}</span>
-                            </div>
-                        );
-                        kotAddonItems.push(
-                            `${item.qty_ordered}x ${x.name} - ₹${x.final_total}`
-                        )
-                    })
-                    kotOrderItems.push(
-                        <tr>
-                            <td style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.8em', 'width': '50%' }}>
-                                {item.name}
-                                <>
-                                    {
-                                        kotAddonItems.length > 0 &&
-                                        <>
-                                            <p style={{ fontSize: '80%' }}>{kotAddonItems.join(',')}</p>
-                                        </>
-                                    }
-                                </>
-
-                            </td>
-                            <td style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.8em' }}>₹{item.price}</td>
-                            <td style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.8em' }}>{item.qty_ordered}</td>
-                            <td style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.8em' }}>₹{item.final_total}</td>
-                        </tr>
-                    )
-                })
-                this.setState({ orderDetails: orderDetails });
-                this.setState({ kotOrderItems: kotOrderItems });
-
-                this.setState({ totalPrintQty: totalPrintQty });
-                this.setState({ totalPrintItem: totalPrintItem });
-
-                var divContents = document.getElementById("printSizeContent").innerHTML;
-                var printWindow = window.open('', '', 'height=500,width=1024');
-                printWindow.document.write('<html><head><title>Print DIV Content</title>');
-                printWindow.document.write('</head><body>');
-                printWindow.document.write(divContents);
-                printWindow.document.write('</body></html>');
-                printWindow.document.close();
-                printWindow.print();
+const PrintOrder = ({ order }) => {
+    const handlePrintOrder = () => {
+        const printContent = document.getElementById(`print-order-${order.id}`);
+        if (printContent) {
+            const WindowPrt = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+            if (WindowPrt) {
+                WindowPrt.document.write(printContent.innerHTML);
+                WindowPrt.document.close();
+                WindowPrt.focus();
+                WindowPrt.print();
+                WindowPrt.close();
             }
         }
-    }
+    };
     return (
-        <div id="printSizeContent" style={{ display: 'none' }}>
-            <div style={{ width: '3.2in', height: '100%', color: 'black', margin: 'auto', padding: '0', fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px' }}>
-                <div style={{ borderRadius: '5px', background: 'white', margin: '10mm auto' }}>
-                    <div style={{ padding: '6px' }}>
-                        <div style={{ textAlign: 'center', paddingBottom: '25px', flexDirection: 'column', display: 'flex', }}>
-                            <span style={{ textAlign: 'center', textTransform: 'uppercase', fontWeight: 'bold', fontSize: '1.7em', letterSpacing: '1px', }}>{this.state.orderDetails.store_info.store_name}</span>
-                            <span style={{ textAlign: 'center', fontFamily: 'sans-serif', textTransform: 'uppercase', fontWeight: '500', marginTop: '10px', fontSize: '1.1em', padding: '0 10px', }}>{this.state.orderDetails.store_info.address}</span>
-                            <span style={{ textAlign: 'center', fontFamily: 'sans-serif', marginTop: '10px', fontSize: '1em', fontWeight: '500', padding: '0 10px', }}><strong>+91 {this.state.orderDetails.store_info.support_number}</strong></span>
-                            {/* <span style={{ textAlign: 'center', fontFamily: 'sans-serif', textTransform: 'uppercase', MarginTop: '10px', fontSize: '1em', padding: '5px 10px 0 10px', }}><strong>Gst No- 1Abgc12345</strong> </span> */}
-                        </div>
+        <>
+            <button
+                onClick={handlePrintOrder}
+                className="bg-blue-500 text-white py-2 px-4 rounded shadow hover:bg-blue-600"
+            >
+                Print Order
+            </button>
 
-                        <div style={{ fontFamily: 'sans-serif' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '1px solid #767373', }}>
-                                <div style={{ width: '65%' }}>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>Name:</span>
-                                        <span>{this.state.orderDetails.customer_info.address_name}</span>
-                                    </div>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>Add:</span>
-                                        <span>{this.state.orderDetails.customer_info.address2}, {this.state.orderDetails.customer_info.city}, {this.state.orderDetails.customer_info.state_name} {this.state.orderDetails.customer_info.zipcode}</span>
-                                    </div>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>Ph:</span>
-                                        <span>+91 {this.state.orderDetails.customer_info.phone}</span>
-                                    </div>
-                                </div>
-                                <div style={{ width: '35%' }}>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>#{this.state.orderDetails.display_order_number}</span>
-                                    </div>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>Date:</span>
-                                        <span>{dateOnlyGenerator(this.state.orderDetails.created_at)}</span>
-                                    </div>
-                                    <div style={{ marginBottom: '5px', display: 'flex', }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', }}>Time:</span>
-                                        <span style={{ textTransform: 'uppercase', }}>{timeOnlyGenerator(this.state.orderDetails.created_at)}</span>
-                                    </div>
+            <div style={{ display: 'none' }}>
+                <div className="p-4" id={`print-order-${order.id}`}>
+                    <div className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xl font-semibold text-gray-700">Order: {order.order_reference_no}</h3>
+                                <p className="text-gray-600">
+                                    <strong>Order Date:</strong>{" "}
+                                    <span className="text-grey-600 font-semibold">{formatDate(order.createdAt)}</span>
+                                </p>
+                                <p className="text-gray-600">
+                                    <strong>Bag Total:</strong>{" "}
+                                    <span className="text-grey-600 font-semibold">₹{order.final_total}</span>
+                                </p>
+                                <div className="mt-2">
+                                    <h4 className="text-lg font-semibold text-gray-700">Customer Information</h4>
+                                    <p className="text-gray-600"><strong>Name: </strong> {order.customer_address.name}</p>
+                                    <p className="text-gray-600"><strong>Contact: </strong>{order.customer_address.contact_number}</p>
+                                    <p className="text-gray-600"><strong>Address: </strong>{order.customer_address.house_no}, {order.customer_address.address2}</p>
+                                    <p className="text-gray-600"><strong>Landmark: </strong>{order.customer_address.landmark}</p>
+                                    <p className="text-gray-600"><strong>Delivery Date: </strong>{order.delivery_date}</p>
+                                    <p className="text-gray-600"><strong>Delivery Time: </strong>{order.delivery_time_slot}</p>
                                 </div>
                             </div>
+                            <div className="text-right">
+                                <p className="text-gray-600">
+                                    <strong>Payment:</strong>{" "}
+                                    <span className="text-red-600 font-semibold">{order.payment_mode}</span>
+                                </p>
+
+                            </div>
                         </div>
+                        <div className="mt-4">
+                            <h4 className="text-lg font-semibold text-gray-700">Order Items</h4>
+                            <div className="mt-2">
+                                <table className="min-w-full bg-white">
+                                    <thead>
+                                        <tr style={{ textAlign: 'left' }}>
+                                            <th className="py-2 px-4 bg-gray-200">Item</th>
+                                            <th className="py-2 px-4 bg-gray-200">Quantity</th>
+                                            <th className="py-2 px-4 bg-gray-200">Final Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            order.order_items.map((orderItem: any) => {
+                                                return (
+                                                    <>
+                                                        <tr>
 
+                                                            <td className="py-2 px-4 border-b">
+                                                                {orderItem.product_details.product.name}
+                                                                {/* {
+                                                                    (orderItem.product_details.name && (orderItem.product_details.product.name !== orderItem.product_details.name)) &&
+                                                                    orderItem.product_details.name
+                                                                } */}
+                                                            </td>
+                                                            <td className="py-2 px-4 border-b">{orderItem.item_process_type === 'WHOLE' ? `${orderItem.item_quantity}packs x ${orderItem.item_weight}gm` : `${orderItem.item_weight}gm`}</td>
 
-
-                        <div style={{ fontFamily: 'Muli,sans-serif !important' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '0.01em solid #767373', }}>
-                                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                                    <tr style={{ borderBottom: '1px solid #C1CED9' }}>
-                                        <th style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.7em' }}>Item</th>
-                                        <th style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.7em' }}>Price</th>
-                                        <th style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.7em' }}>Qty</th>
-                                        <th style={{ textAlign: 'left', 'padding': '5px 0', 'verticalAlign': 'baseline', fontSize: '0.7em' }}>Total</th>
-                                    </tr>
-                                    {this.state.kotOrderItems}
+                                                            <td className="py-2 px-4 border-b">₹{orderItem.item_final_total}</td>
+                                                        </tr>
+                                                        {
+                                                            orderItem.additional_data.customer_note &&
+                                                            <tr>
+                                                                <td colSpan={5} className="py-2 px-4 border-b">
+                                                                    <p className="text-sm text-gray-500">{orderItem.additional_data.customer_note}</p>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
-                        <div style={{ fontFamily: 'Muli,sans-serif!important', }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '1px solid #767373' }}>
-                                <div style={{ width: '150px' }}>
-                                    <div style={{ marginBottom: '5px', display: 'flex' }}>
-                                        <span style={{ fontWeight: '600', width: '65px', paddingRight: '5px' }}>Tot Items:</span>
-                                        <span>{this.state.totalPrintItem}</span>
-                                    </div>
-                                    <div style={{ marginBottom: '5px', display: 'flex' }}>
-                                        <span style={{ fontWeight: '600', width: '65px', paddingRight: '5px' }}>Tot Qty:</span>
-                                        <span>{this.state.totalPrintQty}</span>
-                                    </div>
-                                    <div>
-                                    </div>
-                                </div>
-                                <div style={{ flexGrow: '1' }}>
-                                    <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px' }}>Item Total:</span>
-                                        <span style={{ textTransform: 'uppercase' }}>₹{this.state.orderDetails.nsp_breakup.sub_total ? this.state.orderDetails.nsp_breakup.sub_total : 0}</span>
-                                    </div>
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.special_discount) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Special Discount:</span>
-                                            <span>-₹{this.state.orderDetails.nsp_breakup.special_discount}</span>
-                                        </div>
-                                    }
-                                    {
-                                        this.state.orderDetails.nsp_breakup.promo_discount > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Promo Discount:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>-₹{this.state.orderDetails.nsp_breakup.promo_discount}</span>
-                                        </div>
-                                    }
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.store_bear_delivery_charge) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Delivery:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.store_bear_delivery_charge}`}</span>
-                                        </div>
-                                    }
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.packaging_charge) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Packaging Charge:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.packaging_charge}`}</span>
-                                        </div>
-                                    }
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.tax_amount) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Tax:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.tax_amount}`}</span>
-                                        </div>
-                                    }
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.partner_delivery_charge) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Partner Delivery:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.partner_delivery_charge}`}</span>
-                                        </div>
-                                    }
-                                    {
-                                        Number(this.state.orderDetails.nsp_breakup.platform_charge) > 0 &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px', width: '50%' }}>Cash Handling Charges:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>-{`₹${this.state.orderDetails.nsp_breakup.platform_charge}`}</span>
-                                        </div>
-                                    }
 
-                                    <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px' }}>Net Payable:</span>
-                                        <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.net_seller_payable}`}</span>
-                                    </div>
-
-                                    {
-                                        is3rdPartyDelivery &&
-                                        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontWeight: '600', paddingRight: '5px' }}>Delivery Charge Deduction:</span>
-                                            <span style={{ textTransform: 'uppercase' }}>{`₹${this.state.orderDetails.nsp_breakup.delivery_charge}`}</span>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            {
-                                this.state.orderDetails.payment_method == 'COD' ?
-                                    <></>
-                                    :
-                                    <OrderPrintPaymentInfo orderId={this.state.orderDetails.orderId} />
-                            }
-
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', borderTop: '1px solid #767373' }}>
-                                <div style={{ flexGrow: '1' }}>
-                                    <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ fontWeight: '600', paddingRight: '5px', textDecoration: 'underline' }}>Amount to be collected from customer:</span>
-                                        <span>₹{this.state.orderDetails.payment_method === 'PREPAID' ? 0 : Number(this.state.orderDetails.commercial_summary?.total_final_charge)}</span>
-                                    </div>
-                                    <div style={{ textAlign: 'center', fontSize: '1em', fontWeight: 'bold', marginTop: '7px' }}>*Thank You Visit Again*</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )
-}
+        </>
+    );
+};
 
-export default PrintOrder
+export default PrintOrder;

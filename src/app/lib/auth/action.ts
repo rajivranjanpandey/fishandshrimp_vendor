@@ -31,7 +31,8 @@ export async function signinAction(payload: FormData) {
     }
 
 }
-export async function logoutAction() {
-    cookies().delete('token');
+export async function logoutAction({ cookieDelete = true }: { cookieDelete?: boolean }) {
+    if (cookieDelete)
+        cookies().delete('token');
     permanentRedirect('/vendor/login');
 }

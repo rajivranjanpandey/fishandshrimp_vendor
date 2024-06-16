@@ -1,6 +1,7 @@
 // import { cookies } from "next/headers";
 import { cookies } from "next/headers";
 import { API_BASE_URL, CLIENT_TOKEN } from "../constants";
+import { logoutAction } from "../auth/action";
 
 interface ApiHeaders {
     [key: string]: string | undefined;
@@ -53,8 +54,19 @@ export default async function apiService(serviceRequest: ServiceRequest) {
     }
     try {
         const rawResponse = await fetch(`${API_BASE_URL}${serviceRequest.url}`, { method: serviceRequest.method, body: apiBody, headers: headersInit });
-        const response = await rawResponse.json();
-        return response;
+        if (rawResponse.status === 401) {
+            cookies().delete('token');
+            return { 'action': 'LOGOUT' }
+            // throw new Error(`Error in api with status ${rawResponse.status}`);
+
+        } else if (rawResponse.status === 200 || rawResponse.status === 201) {
+            const response = await rawResponse.json();
+            return response;
+        } else {
+            const errorResponse = await rawResponse.json();
+            console.log({ errorResponse });
+            throw new Error(`Error in api with status ${rawResponse.status}`);
+        }
     } catch (e) {
         console.error(`Error in ${serviceRequest.url}`, e);
         return false;

@@ -5,7 +5,7 @@ import LoginButton from "@/components/LoginButton";
 
 export const metadata: Metadata = {
   title: "Fish and Shrimp",
-  description: "Fish and Shrimp Admin",
+  description: "Fish and Shrimp Vendor",
 };
 
 const SignIn: React.FC = () => {
@@ -34,7 +34,7 @@ const SignIn: React.FC = () => {
             </Link> */}
 
             <p className="2xl:px-20">
-              Manage your vendors in few click only
+              Manage your orders and inventory in few click only
             </p>
 
             <span className="mt-15 inline-block">
@@ -166,19 +166,19 @@ const SignIn: React.FC = () => {
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
             {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
             <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-              Sign In to FishandShrimp Admin
+              Sign In to FishandShrimp Vednor
             </h2>
 
             <form action={signinAction}>
               <div className="mb-4">
                 <label className="mb-2.5 block font-medium text-black dark:text-white">
-                  Admin Mobile
+                  Mobile
                 </label>
                 <div className="relative">
                   <input
                     type="phone"
                     name="phone"
-                    placeholder="Enter admin mobile"
+                    placeholder="Enter mobile"
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
 
