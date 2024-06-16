@@ -1,7 +1,6 @@
 // import { cookies } from "next/headers";
 import { cookies } from "next/headers";
 import { API_BASE_URL, CLIENT_TOKEN } from "../constants";
-import { logoutAction } from "../auth/action";
 
 interface ApiHeaders {
     [key: string]: string | undefined;

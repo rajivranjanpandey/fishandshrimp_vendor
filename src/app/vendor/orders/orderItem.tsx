@@ -114,7 +114,7 @@ function OrderItem(props: { order: any, deliveryBoys: DeliveryBoy[] }) {
                                                 <td className="py-2 px-4 border-b">₹{orderItem.item_final_total}</td>
                                             </tr>
                                             {
-                                                orderItem.additional_data.customer_note &&
+                                                orderItem.additional_data?.customer_note &&
                                                 <tr>
                                                     <td colSpan={5} className="py-2 px-4 border-b">
                                                         <p className="text-sm text-gray-500">{orderItem.additional_data.customer_note}</p>

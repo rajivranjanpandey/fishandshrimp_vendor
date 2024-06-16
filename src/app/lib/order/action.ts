@@ -2,7 +2,6 @@
 
 import { permanentRedirect } from "next/navigation";
 import apiService from "../apiService";
-import { logoutAction } from "../auth/action";
 type Query = {
     page: number;
     size: number;

@@ -1,5 +1,4 @@
 import apiService from "@/app/lib/apiService";
-import { logoutAction } from "@/app/lib/auth/action";
 import { getVendorDeliveryBoys, getVendorOrders } from "@/app/lib/order/action";
 import { NextRequest, NextResponse } from "next/server";
 

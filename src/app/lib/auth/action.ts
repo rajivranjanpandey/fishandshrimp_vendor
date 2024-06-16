@@ -25,14 +25,17 @@ export async function signinAction(payload: FormData) {
         //   })
         console.log({ singnInResponse });
         cookies().set("token", singnInResponse.token);
+        cookies().set("username", singnInResponse.name);
+        cookies().set("usermobile", singnInResponse.mobile);
         permanentRedirect('/vendor/orders');
     } else {
         return { message: 'Invalid mobile number' }
     }
 
 }
-export async function logoutAction({ cookieDelete = true }: { cookieDelete?: boolean }) {
-    if (cookieDelete)
-        cookies().delete('token');
+export async function logoutAction() {
+    cookies().delete('token');
+    cookies().delete('username');
+    cookies().delete('usermobile');
     permanentRedirect('/vendor/login');
 }
