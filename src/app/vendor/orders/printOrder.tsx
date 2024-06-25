@@ -31,11 +31,11 @@ const PrintOrder = ({ order }) => {
                                     font-family: Arial, Helvetica, sans-serif;
                                     color: #000;
                                     width: 100mm;
-                                    padding: 5mm;
+                                    padding: 3.5mm;
                                     margin: 0 auto;
                                 }
                                 .header, .customer-info, .items-table {
-                                    margin-bottom: 5mm;
+                                    margin-bottom: 3mm;
                                 }
                                 .header, .customer-info, .items-table, table, th, td {
                                     page-break-inside: avoid;
@@ -45,7 +45,7 @@ const PrintOrder = ({ order }) => {
                                     justify-content: space-between;
                                 }
                                 h2, h3, p {
-                                    margin: 0 0 1mm 0;
+                                    margin: 0 0 0.7mm 0;
                                 }
                                 h2 {
                                     font-size: 14px;
@@ -66,7 +66,7 @@ const PrintOrder = ({ order }) => {
                                 }
                                 table {
                                     width: 100%;
-                                    margin-top: 2mm;
+                                    margin-top: 1.5mm;
                                 }
                                 th {
                                     text-align: left;
@@ -113,7 +113,7 @@ const PrintOrder = ({ order }) => {
 
             <div style={{ display: 'none' }}>
                 <section className="container" id={`print-order-${order.id}`}>
-                    <div className="header">
+                    <div className="header" style={{ marginBottom: '2mm' }}>
                         <div>
                             <h2>{order.order_reference_no}</h2>
                             <h2>Contact :  {order.customer_address.contact_number}</h2>
